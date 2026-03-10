@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>কালাম Dashboard - Final</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+    :root { --sky-blue: #87CEEB; }
+    body { margin:0; padding:0; font-family:Arial,sans-serif; background:#f2f2f2; }
+    
+    /* ড্যাশবোর্ড হেডার ও ব্যালেন্স */
+    .header-section { background: var(--sky-blue); padding:40px 20px; text-align:center; color:white; }
+    .header-section h1 { margin:0; font-size:45px; letter-spacing:2px; }
+    .header-section p { margin:5px 0 20px; font-size:14px; opacity:0.9; }
+    
+    .balance-container { display:flex; justify-content:center; margin-top:10px; }
+    .balance-btn { 
+        background:white; height:42px; border-radius:25px; 
+        display:flex; align-items:center; padding:0 5px 0 15px; 
+        cursor:pointer; box-shadow:0 4px 10px rgba(0,0,0,0.1); 
+        min-width:200px; border:none; outline:none; 
+    }
+    .logo-circle { 
+        width:32px; height:32px; background: var(--sky-blue); 
+        border-radius:50%; display:flex; align-items:center; 
+        justify-content:center; margin-right:12px; 
+    }
+    .logo-circle img { width:70%; filter:brightness(0) invert(1); }
+    #balanceText { color: var(--sky-blue); font-size:16px; font-weight:bold; flex-grow:1; text-align:center; margin-right:15px; }
+
+    /* ড্যাশবোর্ড বাটন গ্রিড */
+    .container { padding:20px; }
+    .section { display:grid; grid-template-columns:repeat(2,1fr); gap:15px; }
+    .menu-btn { padding:20px; font-size:15px; border:none; border-radius:10px; cursor:pointer; background:white; color:#333; box-shadow:0 2px 5px rgba(0,0,0,0.1); font-weight:bold; text-align: center; }
+    
+    .hidden { display:none; }
+
+    /* ফুল পেজ ভিউ (শ্যাম ডিজাইন) */
+    .full-page-view { background: #fff; min-height: 100vh; position: fixed; top: 0; left: 0; width: 100%; z-index: 100; overflow-y: auto; }
+    .header-sm { background: var(--sky-blue); color: white; padding: 15px; display: flex; align-items: center; }
+    .header-sm i { cursor: pointer; font-size: 20px; margin-right: 15px; }
+    .header-sm span { font-size: 18px; font-weight: bold; flex-grow: 1; text-align: center; margin-right: 35px; }
+    
+    .input-container { padding: 30px 20px; }
+    .label { color: var(--sky-blue); font-size: 13px; margin-bottom: 8px; font-weight: bold; }
+    .input-row { display: flex; align-items: center; border-bottom: 2px solid #ccc; padding-bottom: 8px; margin-bottom: 25px; }
+    input { border: none; outline: none; flex-grow: 1; font-size: 20px; color: #333; width: 100%; }
+    
+    .action-btn { width: 100%; background: var(--sky-blue); color: white; padding: 15px; border: none; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 10px; }
+</style>
+</head>
+<body>
+
+<div id="mainDashboard">
+    <div class="header-section">
+        <h1>কালাম</h1>
+        <p>ডাক বিভাগের ডিজিটাল লেনদেন</p>
+        <div class="balance-container">
+            <button class="balance-btn" id="balanceToggle">
+                <div class="logo-circle"><img src="https://www.nagad.com.bd/images/nagad-logo.png" alt="logo"></div>
+                <span id="balanceText">Tap for Balance</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div id="agentSection" class="section">
+            <div class="menu-btn" onclick="openPage('cashInPage')">Cash In</div>
+            <div class="menu-btn" onclick="openPage('sendMoneyPage')">Send Money</div>
+            <div class="menu-btn" onclick="openPage('cashOutPage')">Cash Out</div>
+            <div class="menu-btn" onclick="openPage('addUserPage')">Add User</div>
+        </div>
+    </div>
+</div>
+
+<div id="addUserPage" class="full-page-view hidden">
+    <div class="header-sm"><i class="fas fa-arrow-left" onclick="closeAll()"></i><span>Add User</span></div>
+    <div class="input-container">
+        <div class="label">New User Mobile Number</div>
+        <div class="input-row"><input type="tel" class="mobile-input" id="newUserMobile" placeholder="01XXX-XXXXXX" maxlength="12"></div>
+        
+        <div class="label">Set New User PIN</div>
+        <div class="input-row"><input type="password" id="newUserPin" placeholder="Enter 4-digit PIN" maxlength="4"></div>
+
+        <div class="label" style="color: #ff6b6b;">Agent Confirmation PIN</div>
+        <div class="input-row" style="border-color: #ff6b6b;"><input type="password" id="agentConfirmPin" placeholder="Enter Your Agent PIN" maxlength="4"></div>
+        
+        <button class="action-btn" onclick="processAddUser()">Create New Account</button>
+    </div>
+</div>
+
+<div id="sendMoneyPage" class="full-page-view hidden">
+    <div class="header-sm"><i class="fas fa-arrow-left" onclick="closeAll()"></i><span>Send Money</span></div>
+    <div class="input-container">
+        <div class="label">Recipient Number</div>
+        <div class="input-row"><input type="tel" class="mobile-input" placeholder="01XXX-XXXXXX" maxlength="12"></div>
+        <div class="label">Amount</div>
+        <div class="input-row"><input type="number" placeholder="0.00"></div>
+        <div class="label">PIN</div>
+        <div class="input-row"><input type="password" placeholder="xxxx" maxlength="4"></div>
+        <button class="action-btn" onclick="alert('সফল হয়েছে')">Next</button>
+    </div>
+</div>
+
+<div id="cashInPage" class="full-page-view hidden">
+    <div class="header-sm"><i class="fas fa-arrow-left" onclick="closeAll()"></i><span>Cash In</span></div>
+    <div class="input-container">
+        <div class="label">Mobile Number</div>
+        <div class="input-row"><input type="tel" class="mobile-input" placeholder="01XXX-XXXXXX" maxlength="12"></div>
+        <div class="label">Amount</div>
+        <div class="input-row"><input type="number" placeholder="0.00"></div>
+        <div class="label">PIN</div>
+        <div class="input-row"><input type="password" placeholder="xxxx" maxlength="4"></div>
+        <button class="action-btn" onclick="alert('Cash In সফল')">Next</button>
+    </div>
+</div>
+
+<div id="cashOutPage" class="full-page-view hidden">
+    <div class="header-sm"><i class="fas fa-arrow-left" onclick="closeAll()"></i><span>Cash Out</span></div>
+    <div class="input-container">
+        <div class="label">Agent Number</div>
+        <div class="input-row"><input type="tel" class="mobile-input" placeholder="01XXX-XXXXXX" maxlength="12"></div>
+        <div class="label">Amount</div>
+        <div class="input-row"><input type="number" placeholder="0.00"></div>
+        <div class="label">PIN</div>
+        <div class="input-row"><input type="password" placeholder="xxxx" maxlength="4"></div>
+        <button class="action-btn" onclick="alert('Cash Out সফল')">Next</button>
+    </div>
+</div>
+
+<script>
+    const currentUser = { role: "agent", balance: 5250.00, pin: "1234" };
+
+    // ব্যালেন্স টগল
+    const balanceToggle = document.getElementById("balanceToggle");
+    const balanceText = document.getElementById("balanceText");
+    let isVisible = false;
+
+    balanceToggle.addEventListener("click", () => {
+        if(!isVisible){
+            balanceText.innerText = currentUser.balance.toFixed(2) + " Tk";
+            isVisible = true;
+            setTimeout(() => { balanceText.innerText = "Tap for Balance"; isVisible = false; }, 3000);
+        }
+    });
+
+    // মোবাইল নম্বর অটো-ফরম্যাট (০১XXX-XXXXXX)
+    document.querySelectorAll('.mobile-input').forEach(input => {
+        input.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 5) {
+                value = value.substring(0, 5) + "-" + value.substring(5, 11);
+            }
+            e.target.value = value;
+        });
+    });
+
+    // Add User প্রসেস
+    function processAddUser() {
+        const agentPin = document.getElementById('agentConfirmPin').value;
+        if (agentPin === currentUser.pin) {
+            alert("Success! Account created.");
+            closeAll();
+        } else {
+            alert("Incorrect Agent PIN!");
+        }
+    }
+
+    function openPage(id) {
+        document.getElementById("mainDashboard").classList.add("hidden");
+        document.getElementById(id).classList.remove("hidden");
+    }
+
+    function closeAll() {
+        document.querySelectorAll('.full-page-view').forEach(p => p.classList.add('hidden'));
+        document.getElementById("mainDashboard").classList.remove("hidden");
+    }
+</script>
+
+</body>
+</html>
