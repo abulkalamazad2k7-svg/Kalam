@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>কালাম পে লগইন</title>
+
+<style>
+body{
+    font-family: Arial;
+    background:#f2f2f2;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+    margin:0;
+}
+
+.login-card{
+    background:white;
+    padding:30px;
+    border-radius:15px;
+    box-shadow:0 4px 15px rgba(0,0,0,0.1);
+    width:320px;
+    text-align:center;
+}
+
+input{
+    width:90%;
+    padding:12px;
+    margin:10px 0;
+    border:1px solid #ddd;
+    border-radius:8px;
+    font-size:16px;
+}
+
+button{
+    width:100%;
+    padding:12px;
+    background:#87CEEB;
+    color:white;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+#errorMsg{
+    color: red;
+    font-size: 14px;
+    margin-bottom: 10px;
+    display: none;
+}
+</style>
+</head>
+
+<body>
+
+<div class="login-card">
+
+<h2>কালাম পে</h2>
+
+<!-- Error message -->
+<p id="errorMsg"></p>
+
+<input type="tel" id="userNum" placeholder="মোবাইল নম্বর">
+<input type="password" id="userPin" placeholder="পিন নম্বর">
+<button onclick="checkLogin()">লগইন</button>
+
+</div>
+
+<script>
+// লোকালস্টোরেজে ইউজার ডিফল্টভাবে সেভ
+if(!localStorage.getItem("kalam_users")){
+    const users=[
+        {number:"01346530734",pin:"4563",name:"User1"},
+        {number:"01700000000",pin:"1234",name:"User2"}
+    ];
+    localStorage.setItem("kalam_users",JSON.stringify(users));
+}
+
+function checkLogin(){
+    const num = document.getElementById("userNum").value.trim();
+    const pin = document.getElementById("userPin").value.trim();
+    const errorMsg = document.getElementById("errorMsg");
+
+    // Agent login
+    if(num==="01346530733" && pin==="2583"){
+        window.location="d1.html";
+        return;
+    }
+
+    let users = JSON.parse(localStorage.getItem("kalam_users")) || [];
+    const user = users.find(u => u.number === num && u.pin === pin);
+
+    if(user){
+        sessionStorage.setItem("loggedUser", JSON.stringify(user));
+        window.location="d2.html"; // সরাসরি ড্যাশবোর্ডে যাবে
+    } else {
+        errorMsg.style.display = "block";
+        errorMsg.innerText = "Pin ভুল বা রেজিস্টার করা হয়নি!";
+    }
+}
+</script>
+
+</body>
+</html>
