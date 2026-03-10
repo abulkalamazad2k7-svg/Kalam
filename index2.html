@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>কালাম লগইন</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f2f2f2; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .login-card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 320px; text-align: center; }
+        input { width: 90%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; }
+        button { width: 100%; padding: 12px; background: #87CEEB; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <h2>কালাম পে</h2>
+        <input type="tel" id="userNum" placeholder="মোবাইল নম্বর (০১XXX-XXXXXX)">
+        <input type="password" id="userPin" placeholder="পিন নম্বর">
+        <button onclick="checkLogin()">লগইন</button>
+    </div>
+
+    <script>
+        function checkLogin() {
+            const num = document.getElementById("userNum").value.replace(/-/g, "");
+            const pin = document.getElementById("userPin").value;
+            
+            // এজেন্ট আইডি চেক
+            if (num === "01346530733" && pin === "2583") {
+                alert("এজেন্ট লগইন সফল!");
+                window.location.href = "agent_dashboard.html";
+                return;
+            }
+
+            // পার্সোনাল আইডি চেক (লোকেশন থেকে)
+            let allUsers = JSON.parse(localStorage.getItem('kalam_users')) || [];
+            const user = allUsers.find(u => u.number.replace(/-/g, "") === num && u.pin === pin);
+
+            if (user) {
+                sessionStorage.setItem('loggedInUser', JSON.stringify(user));
+                alert("পার্সোনাল লগইন সফল!");
+                window.location.href = "personal_dashboard.html";
+            } else {
+                alert("নম্বর বা পিন ভুল অথবা আইডি তৈরি করা হয়নি!");
+            }
+        }
+    </script>
+</body>
+</html>
