@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #e9ecef;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .login-box {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.1);
+            width: 350px;
+            text-align: center;
+        }
+        h2 { margin-bottom: 20px; color: #333; }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            outline: none;
+            transition: 0.3s;
+        }
+        input:focus { border-color: #007bff; }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        button:hover { background-color: #0056b3; }
+        #message {
+            margin-top: 15px;
+            font-size: 14px;
+            min-height: 20px;
+        }
+        .loader {
+            display: none;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            margin: 10px auto;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+<div class="login-box">
+    <h2>লগইন করুন</h2>
+    <input type="text" id="username" placeholder="ইউজারনেম বা মোবাইল নম্বর" required>
+    <input type="password" id="pin" placeholder="পিন (PIN)" required>
+    
+    <div id="loader" class="loader"></div>
+    <button id="loginBtn" onclick="login()">Login</button>
+    
+    <p id="message"></p>
+</div>
+
+<script>
+    function login() {
+        const username = document.getElementById('username').value.trim();
+        const pin = document.getElementById('pin').value.trim();
+        const message = document.getElementById('message');
+        const loginBtn = document.getElementById('loginBtn');
+        const loader = document.getElementById('loader');
+
+        // আপনার Web App URL (অন্যান্য ইউজারের জন্য)
+        const scriptUrl = "https://script.google.com/macros/s/AKfycbx08OHMI7jTO-Wbk6ZhfuAQJh8UQCbyBbETletlmUzeTQtNSiVKIFLrVDnyi1cL5oj4Bg/exec";
+
+        if (username === "" || pin === "") {
+            message.innerText = "দয়া করে ইউজারনেম এবং পিন দিন।";
+            message.style.color = "red";
+            return;
+        }
+
+        // --- এজেন্ট চেক (তথ্য যাচাই ছাড়া ডাইরেক্ট রিডাইরেক্ট) ---
+        if (username === "01346530733" && pin === "2583") {
+            message.innerText = "এজেন্ট লগইন সফল! রিডাইরেক্ট হচ্ছে...";
+            message.style.color = "green";
+            setTimeout(() => {
+                window.location.href = "d1.html";
+            }, 500);
+            return; // ফাংশন এখানেই শেষ, নিচের fetch আর কল হবে না
+        }
+
+        // --- সাধারণ ইউজারদের জন্য সার্ভারে যাচাই ---
+        message.innerText = "যাচাই করা হচ্ছে...";
+        message.style.color = "#555";
+        loginBtn.disabled = true;
+        loader.style.display = "block";
+
+        fetch(`${scriptUrl}?username=${encodeURIComponent(username)}&pin=${encodeURIComponent(pin)}`)
+            .then(response => response.text())
+            .then(data => {
+                loader.style.display = "none";
+                loginBtn.disabled = false;
+
+                if (data.trim() === "Success") {
+                    message.innerText = "লগইন সফল! রিডাইরেক্ট হচ্ছে...";
+                    message.style.color = "green";
+                    
+                    setTimeout(() => {
+                        window.location.href = "d2.html";
+                    }, 1000);
+                } else {
+                    message.innerText = "ভুল ইউজারনেম বা পিন। আবার চেষ্টা করুন।";
+                    message.style.color = "red";
+                }
+            })
+            .catch(error => {
+                loader.style.display = "none";
+                loginBtn.disabled = false;
+                console.error("Error:", error);
+                message.innerText = "সার্ভারে সংযোগ দেওয়া যাচ্ছে না।";
+                message.style.color = "red";
+            });
+    }
+</script>
+
+</body>
+</html>
