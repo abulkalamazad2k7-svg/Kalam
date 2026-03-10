@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>কালাম Dashboard - Final</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+    :root { --sky-blue: #87CEEB; }
+    body { margin:0; padding:0; font-family:Arial,sans-serif; background:#f2f2f2; }
+
+    /* Header */
+    .header-section { background: var(--sky-blue); padding:40px 20px; text-align:center; color:white; }
+    .header-section h1 { margin:0; font-size:45px; letter-spacing:2px; }
+    .header-section p { margin:5px 0 20px; font-size:14px; opacity:0.9; }
+
+    /* Balance */
+    .balance-container { display:flex; justify-content:center; margin-top:10px; }
+    .balance-btn { 
+        background:white; height:42px; border-radius:25px; 
+        display:flex; align-items:center; padding:0 5px 0 15px; 
+        cursor:pointer; box-shadow:0 4px 10px rgba(0,0,0,0.1); 
+        min-width:200px; border:none; outline:none; 
+        user-select: none; -webkit-tap-highlight-color: transparent;
+    }
+    .logo-circle { 
+        width:32px; height:32px; background: var(--sky-blue); 
+        border-radius:50%; display:flex; align-items:center; 
+        justify-content:center; margin-right:12px; 
+    }
+    .logo-circle img { width:70%; }
+    #balanceText { color: var(--sky-blue); font-size:16px; font-weight:bold; flex-grow:1; text-align:center; margin-right:15px; }
+
+    /* Dashboard buttons */
+    .container { padding:20px; }
+    .section { display:grid; grid-template-columns:repeat(2,1fr); gap:15px; }
+    .menu-btn { padding:20px; font-size:15px; border:none; border-radius:10px; cursor:pointer; background:white; color:#333; box-shadow:0 2px 5px rgba(0,0,0,0.1); font-weight:bold; text-align: center; }
+
+    /* Full-page Cash In overlay */
+    .full-page-view { background: #fff; min-height: 100vh; position: fixed; top:0; left:0; width:100%; z-index:100; overflow-y:auto; display:none; }
+    .header-sm { background: var(--sky-blue); color:white; padding:15px; display:flex; align-items:center; }
+    .header-sm i { cursor:pointer; font-size:20px; margin-right:15px; }
+    .header-sm span { font-size:18px; font-weight:bold; flex-grow:1; text-align:center; margin-right:35px; }
+
+    .input-container { padding:30px 20px; }
+    .label { color: var(--sky-blue); font-size:13px; margin-bottom:8px; font-weight:bold; }
+    .input-row { display:flex; align-items:center; border-bottom:2px solid #ccc; padding-bottom:8px; margin-bottom:25px; }
+    input { border:none; outline:none; flex-grow:1; font-size:20px; color:#333; width:100%; }
+    .action-btn { width:100%; background: var(--sky-blue); color:white; padding:15px; border:none; border-radius:8px; font-weight:bold; font-size:16px; cursor:pointer; margin-top:10px; }
+</style>
+</head>
+<body>
+
+<div id="mainDashboard">
+    <div class="header-section">
+        <h1>কালাম</h1>
+        <p>ডাক বিভাগের ডিজিটাল লেনদেন</p>
+        <div class="balance-container">
+            <button class="balance-btn" id="balanceToggle">
+                <div class="logo-circle">
+                    <img src="https://abulkalamazad2k7.wordpress.com/wp-content/uploads/2026/03/file_0000000030647208895c321b4198aa19.png" alt="logo">
+                </div>
+                <span id="balanceText">Tap for Balance</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div id="agentSection" class="section">
+            <div class="menu-btn" onclick="window.location.href='addUser.html'">Add User</div>
+            <div class="menu-btn" onclick="openCashIn()">Cash In</div>
+        </div>
+    </div>
+</div>
+
+<div id="cashInPage" class="full-page-view">
+    <div class="header-sm"><i class="fas fa-arrow-left" onclick="closeAll()"></i><span>Cash In</span></div>
+    <div class="input-container">
+        <div class="label">Mobile Number</div>
+        <div class="input-row"><input type="tel" class="mobile-input" placeholder="01XXX-XXXXXX" maxlength="12"></div>
+        <div class="label">Amount</div>
+        <div class="input-row"><input type="number" placeholder="0.00"></div>
+        <div class="label">PIN</div>
+        <div class="input-row"><input type="password" placeholder="xxxx" maxlength="4"></div>
+        <button class="action-btn" onclick="alert('Cash In সফল')">Next</button>
+    </div>
+</div>
+
+<script>
+const currentUser = { role: "agent", balance: 5250.00, pin: "1234" };
+
+const balanceToggle = document.getElementById("balanceToggle");
+const balanceText = document.getElementById("balanceText");
+let isVisible = false;
+let pressTimer;
+
+// ১: সাধারণ ক্লিক (ব্যালেন্স দেখা)
+balanceToggle.addEventListener("click", () => {
+    if(!isVisible){
+        balanceText.innerText = currentUser.balance.toFixed(2) + " Tk";
+        isVisible = true;
+        setTimeout(() => { 
+            balanceText.innerText = "Tap for Balance"; 
+            isVisible = false; 
+        }, 3000);
+    }
+});
+
+// ২: ১ সেকেন্ড চেপে ধরলে এডিট করার ফাংশন (Long Press)
+balanceToggle.addEventListener("mousedown", startPress);
+balanceToggle.addEventListener("touchstart", startPress);
+balanceToggle.addEventListener("mouseup", cancelPress);
+balanceToggle.addEventListener("mouseleave", cancelPress);
+balanceToggle.addEventListener("touchend", cancelPress);
+
+function startPress() {
+    pressTimer = setTimeout(() => {
+        let newAmount = prompt("আপনার নতুন ব্যালেন্স বসান:", currentUser.balance);
+        if (newAmount !== null && newAmount !== "") {
+            currentUser.balance = parseFloat(newAmount);
+            balanceText.innerText = currentUser.balance.toFixed(2) + " Tk";
+            setTimeout(() => { balanceText.innerText = "Tap for Balance"; }, 3000);
+        }
+    }, 1000); // ১ সেকেন্ড হোল্ড টাইম
+}
+
+function cancelPress() {
+    clearTimeout(pressTimer);
+}
+
+// Cash In overlay লজিক
+function openCashIn(){
+    document.getElementById("mainDashboard").style.display = "none";
+    document.getElementById("cashInPage").style.display = "block";
+}
+
+function closeAll(){
+    document.getElementById("mainDashboard").style.display = "block";
+    document.querySelectorAll('.full-page-view').forEach(p => p.style.display = "none");
+}
+
+// মোবাইল নম্বর অটো-ফরম্যাট
+document.querySelectorAll('.mobile-input').forEach(input=>{
+    input.addEventListener('input', function(e){
+        let value = e.target.value.replace(/\D/g,'');
+        if(value.length>5){
+            value = value.substring(0,5)+'-'+value.substring(5,11);
+        }
+        e.target.value = value;
+    });
+});
+</script>
+
+</body>
+</html>
