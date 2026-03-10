@@ -1,0 +1,27 @@
+<script>
+    const currentUser = { number: "01346530733", role: "agent", balance: 50000.00, pin: "2583" };
+
+    function processAddUser() {
+        const agentPin = document.getElementById('agentConfirmPin').value;
+        const newNum = document.getElementById('newUserMobile').value;
+        const newPin = document.getElementById('newUserPin').value;
+
+        if (agentPin === currentUser.pin) {
+            let savedUsers = JSON.parse(localStorage.getItem('kalam_users')) || [];
+            
+            // নতুন ইউজার ডাটাবেসে (লোকেশন) সেভ করা
+            savedUsers.push({
+                number: newNum,
+                pin: newPin,
+                balance: 100.00, // বোনাস ব্যালেন্স
+                role: "personal"
+            });
+
+            localStorage.setItem('kalam_users', JSON.stringify(savedUsers));
+            alert("সফল! আইডিটি লেনদেনের জন্য প্রস্তুত।");
+            closeAll();
+        } else {
+            alert("ভুল এজেন্ট পিন!");
+        }
+    }
+</script>
