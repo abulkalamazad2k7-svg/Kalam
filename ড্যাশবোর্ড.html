@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+<title>Kalam Pay</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+  :root { --sky-blue: #87CEEB; }
+  body { margin:0; padding:0; font-family: Arial, sans-serif; background:#f2f2f2; overflow-x: hidden; }
+
+  /* Splash Screen - 2 Seconds */
+  #splashScreen {
+    position: fixed; width: 100%; height: 100%; background: white;
+    display: flex; justify-content: center; align-items: center;
+    z-index: 9999; transition: opacity 0.8s ease;
+  }
+  #splashScreen h1 { color: var(--sky-blue); font-size: 50px; font-weight: bold; animation: zoomIn 1.2s ease-out forwards; }
+  @keyframes zoomIn { from { transform: scale(0.3); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+  /* Dashboards Header */
+  .header { background: var(--sky-blue); padding:40px 20px; text-align:center; color:white; }
+  .header h1 { margin:0; font-size:45px; font-weight: bold; letter-spacing:2px; }
+  .header p { margin: 5px 0 15px; font-size:15px; opacity:0.9; }
+  
+  .balance-container { display: flex; justify-content: center; width: 100%; margin-top: 10px; }
+  .balance-btn { 
+    background: white; height: 42px; border-radius: 25px; 
+    display: inline-flex; align-items: center; padding: 0 20px; 
+    cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
+    border: none; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    min-width: 180px; user-select: none;
+  }
+  .balance-text { color: var(--sky-blue); font-size: 16px; font-weight: bold; }
+
+  section { display:none; padding:20px; animation: fadeIn 0.4s ease; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .input-container { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+  .label { color: var(--sky-blue); font-size: 13px; margin-bottom: 5px; font-weight: bold; text-align: left; }
+  
+  input { 
+    width:100%; border:none; border-bottom:2px solid #ccc; 
+    padding:12px 0; margin-bottom:20px; font-size:18px; outline:none; 
+    background: transparent; box-sizing: border-box;
+  }
+  .main-btn { width:100%; background: var(--sky-blue); color:white; padding:16px; border:none; border-radius:10px; font-weight:bold; cursor:pointer; font-size:16px; }
+
+  /* Grid Menu */
+  .menu { display:grid; grid-template-columns: repeat(2, 1fr); gap:15px; margin-top: 20px; }
+  .menu-item { 
+    background:white; padding:25px 10px; border-radius:12px; 
+    text-align:center; font-weight:bold; color:#333; 
+    box-shadow:0 2px 8px rgba(0,0,0,0.05); cursor:pointer;
+    -webkit-tap-highlight-color: rgba(135, 206, 235, 0.2);
+  }
+  .header-sm { background: var(--sky-blue); color:white; padding:15px; display:flex; align-items:center; margin: -20px -20px 20px -20px; }
+  .header-sm i { cursor:pointer; font-size:20px; margin-right:15px; }
+</style>
+</head>
+<body>
+
+<div id="splashScreen"><h1>কালাম পে</h1></div>
+
+<section id="loginPage">
+  <div style="text-align:center; margin: 50px 0 30px;"><h1 style="color:var(--sky-blue); font-size:45px;">কালাম পে</h1></div>
+  <div class="input-container">
+    <div class="label">মোবাইল নম্বর</div>
+    <input type="tel" id="loginUserId" placeholder="017XXXXXXXX" maxlength="11">
+    <div class="label">পিন নম্বর</div>
+    <input type="password" id="loginPin" placeholder="XXXX" maxlength="4">
+    <button class="main-btn" onclick="handleLogin()">প্রবেশ করুন</button>
+    <p id="loginMsg" style="text-align:center; margin-top:15px;"></p>
+  </div>
+</section>
+
+<section id="agentDashboard">
+  <div class="header" style="margin: -20px -20px 0 -20px;">
+    <h1>কালাম</h1><p>ডাক বিভাগে ডিজিটাল লেনদেন</p>
+    <div class="balance-container">
+      <button class="balance-btn" onclick="toggleBalance('agent')" id="agentBtn">
+        <span id="agentBalTxt" class="balance-text">Tap for Balance</span>
+      </button>
+    </div>
+  </div>
+  <div class="menu">
+    <div class="menu-item" onclick="openForm('cashInPage')">Cash In</div>
+    <div class="menu-item" onclick="openForm('addMoneyPage')">Add Money</div>
+    <div class="menu-item" onclick="window.location.href='user.html'">Add User</div>
+  </div>
+</section>
+
+<section id="personalDashboard">
+  <div class="header" style="margin: -20px -20px 0 -20px;">
+    <h1>কালাম</h1><p>ডাক বিভাগে ডিজিটাল লেনদেন</p>
+    <div class="balance-container">
+      <button class="balance-btn" onclick="toggleBalance('personal')" id="personalBtn">
+        <span id="personalBalTxt" class="balance-text">Tap for Balance</span>
+      </button>
+    </div>
+  </div>
+  <div class="menu">
+    <div class="menu-item" onclick="openForm('sendMoneyPage')">Send Money</div>
+    <div class="menu-item" onclick="openForm('cashOutPage')">Cash Out</div>
+    <div class="menu-item" onclick="window.open('https://your-bill-pay-link.com', '_blank')">Bill Pay</div>
+    <div class="menu-item" style="cursor: default;" onclick="void(0)">Loan</div>
+  </div>
+</section>
+
+<section id="cashInPage">
+  <div class="header-sm"><i class="fas fa-arrow-left" onclick="goBack()"></i> <span>Cash In</span></div>
+  <div class="input-container">
+    <div class="label">প্রাপক নম্বর</div><input type="tel" id="ciTarget" placeholder="01XXXXXXXXX">
+    <div class="label">পরিমাণ</div><input type="number" id="ciAmount" placeholder="0.00">
+    <div class="label">পিন</div><input type="password" id="ciPin" maxlength="4">
+    <button class="main-btn" onclick="processAction('cashin', 'ciTarget', 'ciAmount', 'ciPin', 'ciMsg')">নিশ্চিত করুন</button>
+    <p id="ciMsg" style="text-align:center; margin-top:10px;"></p>
+  </div>
+</section>
+
+<section id="sendMoneyPage">
+  <div class="header-sm"><i class="fas fa-arrow-left" onclick="goBack()"></i> <span>Send Money</span></div>
+  <div class="input-container">
+    <div class="label">প্রাপক নম্বর</div><input type="tel" id="smTarget" placeholder="01XXXXXXXXX">
+    <div class="label">পরিমাণ</div><input type="number" id="smAmount" placeholder="0.00">
+    <div class="label">পিন</div><input type="password" id="smPin" maxlength="4">
+    <button class="main-btn" onclick="processAction('sendmoney', 'smTarget', 'smAmount', 'smPin', 'smMsg')">নিশ্চিত করুন</button>
+    <p id="smMsg" style="text-align:center; margin-top:10px;"></p>
+  </div>
+</section>
+
+<section id="cashOutPage">
+  <div class="header-sm"><i class="fas fa-arrow-left" onclick="goBack()"></i> <span>Cash Out</span></div>
+  <div class="input-container">
+    <div class="label">এজেন্ট নম্বর</div><input type="tel" id="coAgent" placeholder="01XXXXXXXXX">
+    <div class="label">পরিমাণ</div><input type="number" id="coAmount" placeholder="0.00">
+    <div class="label">পিন</div><input type="password" id="coPin" maxlength="4">
+    <button class="main-btn" onclick="processAction('cashout', 'coAgent', 'coAmount', 'coPin', 'coMsg')">নিশ্চিত করুন</button>
+    <p id="coMsg" style="text-align:center; margin-top:10px;"></p>
+  </div>
+</section>
+
+<section id="addMoneyPage">
+  <div class="header-sm"><i class="fas fa-arrow-left" onclick="goBack()"></i> <span>Add Money</span></div>
+  <div class="input-container">
+    <div class="label">পরিমাণ</div><input type="number" id="amAmount" placeholder="0.00">
+    <button class="main-btn" onclick="processAction('addBalance', '', 'amAmount', '', 'amMsg')">Add Money</button>
+    <p id="amMsg" style="text-align:center; margin-top:10px;"></p>
+  </div>
+</section>
+
+<script>
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwtHBln1p2pbWTP89tLCGLODCEDxxIBlwKpatBW8P1wgYD4LippZIlgNeiG5oxJFJc2qg/exec";
+let user = { id: "", balance: 0, type: "" };
+let isVisible = false;
+
+window.onload = () => {
+  setTimeout(() => {
+    document.getElementById('splashScreen').style.opacity = '0';
+    setTimeout(() => {
+      document.getElementById('splashScreen').style.display = 'none';
+      document.getElementById('loginPage').style.display = 'block';
+    }, 800);
+  }, 2000);
+};
+
+function hideAll() { document.querySelectorAll("section").forEach(s => s.style.display="none"); }
+function openForm(id) { hideAll(); document.getElementById(id).style.display="block"; }
+function goBack() { hideAll(); if(user.type==='agent') openForm('agentDashboard'); else openForm('personalDashboard'); }
+
+function toggleBalance(role) {
+  const btn = document.getElementById(role + 'Btn');
+  const txt = document.getElementById(role + 'BalTxt');
+  if(!isVisible) {
+    isVisible = true; txt.innerText = user.balance.toFixed(2) + " Tk";
+    btn.style.minWidth = "80px"; 
+    setTimeout(() => { txt.innerText = "Tap for Balance"; btn.style.minWidth = "180px"; isVisible = false; }, 3000);
+  }
+}
+
+function handleLogin() {
+  const id = document.getElementById("loginUserId").value.trim();
+  const pin = document.getElementById("loginPin").value.trim();
+  const msg = document.getElementById("loginMsg");
+  if(!id || !pin) { msg.innerText = "সব তথ্য দিন"; return; }
+  msg.innerText = "যাচাই হচ্ছে...";
+  fetch(`${SCRIPT_URL}?action=login&userId=${id}&pin=${pin}`)
+    .then(res => res.json())
+    .then(data => {
+      if(data.status === "SUCCESS") {
+        user = { id: data.userId, balance: parseFloat(data.balance), type: data.userType };
+        if(user.type === "agent") openForm('agentDashboard'); else openForm('personalDashboard');
+      } else { msg.innerText = data.message; msg.style.color = "red"; }
+    }).catch(() => { msg.innerText = "সার্ভার এরর!"; });
+}
+
+function processAction(action, targetId, amountId, pinId, msgId) {
+  const target = targetId ? document.getElementById(targetId).value.trim() : "";
+  const amount = document.getElementById(amountId).value.trim();
+  const pin = pinId ? document.getElementById(pinId).value.trim() : "";
+  const msg = document.getElementById(msgId);
+
+  msg.innerText = "প্রসেসিং...";
+  let url = `${SCRIPT_URL}?action=${action}&amount=${amount}`;
+  if(action === 'cashin') url += `&agentId=${user.id}&agentPin=${pin}&targetId=${target}`;
+  else if(action === 'sendmoney') url += `&userId=${user.id}&pin=${pin}&targetId=${target}`;
+  else if(action === 'cashout') url += `&userId=${user.id}&pin=${pin}&agentId=${target}`;
+  else if(action === 'addBalance') url += `&agentId=${user.id}`;
+
+  fetch(url).then(res => res.json()).then(data => {
+    msg.innerText = data.message;
+    msg.style.color = (data.status === "SUCCESS") ? "green" : "red";
+    if(data.status === "SUCCESS") {
+      user.balance = data.balance || data.agentBalance;
+      setTimeout(goBack, 2000);
+    }
+  }).catch(() => { msg.innerText = "সার্ভার এরর!"; });
+}
+</script>
+</body>
+</html>
