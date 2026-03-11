@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+<title>কালাম Dashboard - Final Fix</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+    :root { --sky-blue: #87CEEB; }
+    body { margin:0; padding:0; font-family:Arial,sans-serif; background:#f2f2f2; overflow-x: hidden; }
+
+    /* Header & Balance */
+    .header-section { background: var(--sky-blue); padding:40px 20px; text-align:center; color:white; }
+    .header-section h1 { margin:0; font-size:40px; letter-spacing:1px; }
+    .header-section p { margin:5px 0 20px; font-size:14px; opacity:0.9; }
+
+    .balance-btn { 
+        background:white; height:42px; border-radius:25px; 
+        display:flex; align-items:center; padding:0 15px; 
+        cursor:pointer; box-shadow:0 4px 10px rgba(0,0,0,0.1); 
+        min-width:200px; border:none; margin: 0 auto;
+        user-select: none; -webkit-tap-highlight-color: transparent;
+    }
+    #balanceText { color: var(--sky-blue); font-size:16px; font-weight:bold; flex-grow:1; text-align:center; }
+
+    /* Main Menu */
+    .container { padding:20px; }
+    .section { display:grid; grid-template-columns:repeat(2,1fr); gap:15px; }
+    .menu-btn { 
+        padding:20px; background:white; border-radius:12px; 
+        text-align:center; font-weight:bold; color:#333; 
+        box-shadow:0 2px 5px rgba(0,0,0,0.05); cursor:pointer;
+    }
+
+    /* Cash In Full Page View */
+    .full-page { 
+        background:#fff; min-height:100vh; position:fixed; 
+        top:0; left:0; width:100%; z-index:100; display:none; 
+    }
+    .header-sm { background: var(--sky-blue); color:white; padding:15px; display:flex; align-items:center; }
+    .header-sm i { cursor:pointer; font-size:20px; margin-right:15px; }
+    .header-sm span { font-size:18px; font-weight:bold; flex-grow:1; text-align:center; margin-right:35px; }
+
+    .input-box { padding:30px 20px; }
+    .label { color: var(--sky-blue); font-size:13px; margin-bottom:5px; font-weight:bold; }
+    input { 
+        width:100%; border:none; border-bottom:2px solid #ccc; 
+        padding:12px 0; margin-bottom:25px; font-size:18px; 
+        outline:none; color:#333; box-sizing: border-box;
+    }
+    input:focus { border-bottom-color: var(--sky-blue); }
+
+    .submit-btn { 
+        width:100%; background: var(--sky-blue); color:white; 
+        padding:16px; border:none; border-radius:8px; 
+        font-weight:bold; font-size:16px; cursor:pointer; 
+    }
+    .submit-btn:disabled { background: #ccc; }
+
+    #msg { text-align:center; margin-top:20px; font-weight:bold; font-size:15px; }
+</style>
+</head>
+<body>
+
+<div id="mainDashboard">
+    <div class="header-section">
+        <h1>কালাম</h1>
+        <p>ডাক বিভাগের ডিজিটাল লেনদেন</p>
+        <button class="balance-btn" id="balanceBtn">
+            <span id="balanceText">Tap for Balance</span>
+        </button>
+    </div>
+
+    <div class="container">
+        <div class="section">
+            <div class="menu-btn" onclick="openCashIn()">Cash In</div>
+            <div class="menu-btn" onclick="window.location.href='d56.html'">Add User</div>
+        </div>
+    </div>
+</div>
+
+<div id="cashInPage" class="full-page">
+    <div class="header-sm">
+        <i class="fas fa-arrow-left" onclick="closeCashIn()"></i>
+        <span>Cash In</span>
+    </div>
+    <div class="input-box">
+        <div class="label">প্রাপক নম্বর</div>
+        <input type="tel" id="targetNum" placeholder="017XX-XXXXXX" maxlength="12">
+        
+        <div class="label">টাকার পরিমাণ</div>
+        <input type="number" id="amount" placeholder="0.00">
+        
+        <div class="label">এজেন্ট পিন</div>
+        <input type="password" id="agentPin" placeholder="xxxx" maxlength="4">
+        
+        <button class="submit-btn" id="submitBtn" onclick="processCashIn()">Next</button>
+        <p id="msg"></p>
+    </div>
+</div>
+
+<script>
+const scriptURL = 'https://script.google.com/macros/s/AKfycbxTNcdBsh6nNYxaY25b_DWQIUNeBqxq0hTWeznHlFGySIIqYO_9mmz0Q92FLBLM8Dv1/exec';
+let wrongPinCount = 0; // Agent PIN ভুল ট্র্যাক
+
+function processCashIn() {
+    const numInput = document.getElementById('targetNum');
+    const amtInput = document.getElementById('amount');
+    const pinInput = document.getElementById('agentPin');
+    const msg = document.getElementById('msg');
+    const btn = document.getElementById('submitBtn');
+
+    let userId = numInput.value.replace(/-/g, "").trim();
+    if(userId.startsWith("0")) userId = userId.substring(1);
+
+    const amount = amtInput.value.trim();
+    const agentPin = pinInput.value.trim();
+
+    if(!userId || !amount || !agentPin) {
+        alert("সব তথ্য সঠিকভাবে দিন");
+        return;
+    }
+
+    // Agent PIN check
+    if(agentPin !== "2583") {
+        wrongPinCount++;
+        if(wrongPinCount >= 3) {
+            msg.innerText = "তিনবার ভুল PIN! ক্যাশইন ব্লক।";
+            msg.style.color = "red";
+            btn.disabled = true;
+        } else {
+            msg.innerText = `ভুল Agent PIN! ${wrongPinCount} বার ভুল হয়েছে।`;
+            msg.style.color = "red";
+        }
+        return;
+    }
+
+    // PIN ঠিক হলে counter reset
+    wrongPinCount = 0;
+
+    btn.disabled = true;
+    btn.innerText = "অপেক্ষা করুন...";
+    msg.innerText = "টাকা পাঠানো হচ্ছে...";
+    msg.style.color = "blue";
+
+    fetch(`${scriptURL}?userId=${encodeURIComponent(userId)}&amount=${encodeURIComponent(amount)}`, { method: 'GET' })
+    .then(res => res.text())
+    .then(result => {
+        if(result.includes("SUCCESS")) {
+            msg.innerText = "ক্যাশইন সফল হয়েছে";
+            msg.style.color = "green";
+            setTimeout(() => { closeCashIn(); clearInputs(); }, 3000);
+        } else if(result.includes("USER_NOT_FOUND")) {
+            msg.innerText = "ব্যর্থ: User ID পাওয়া যায়নি";
+            msg.style.color = "red";
+        } else if(result.includes("INVALID_DATA")) {
+            msg.innerText = "ব্যর্থ: তথ্য সঠিক নয়";
+            msg.style.color = "red";
+        } else {
+            msg.innerText = "ব্যর্থ: সার্ভার সমস্যা";
+            msg.style.color = "red";
+        }
+        btn.disabled = false;
+        btn.innerText = "Next";
+    })
+    .catch(() => {
+        msg.innerText = "ব্যর্থ: নেটওয়ার্ক বা সার্ভার সমস্যা";
+        msg.style.color = "red";
+        btn.disabled = false;
+        btn.innerText = "Next";
+    });
+}
+
+function openCashIn() {
+    document.getElementById('mainDashboard').style.display = 'none';
+    document.getElementById('cashInPage').style.display = 'block';
+}
+
+function closeCashIn() {
+    document.getElementById('mainDashboard').style.display = 'block';
+    document.getElementById('cashInPage').style.display = 'none';
+    document.getElementById('msg').innerText = '';
+}
+
+function clearInputs() {
+    document.getElementById('targetNum').value = '';
+    document.getElementById('amount').value = '';
+    document.getElementById('agentPin').value = '';
+}
+
+// মোবাইল নম্বর অটো-ফরম্যাট (01XXX-XXXXXX)
+document.getElementById('targetNum').addEventListener('input', function(e){
+    let val = e.target.value.replace(/\D/g,'');
+    if(val.length > 5) val = val.substring(0,5) + '-' + val.substring(5,11);
+    e.target.value = val;
+});
+
+// ডেমো ব্যালেন্স টগল
+const bBtn = document.getElementById('balanceBtn');
+const bTxt = document.getElementById('balanceText');
+bBtn.addEventListener('click', () => {
+    bTxt.innerText = "34757.45Tk";
+    setTimeout(() => { bTxt.innerText = "Tap for Balance"; }, 3000);
+});
+</script>
+
+</body>
+</html>
