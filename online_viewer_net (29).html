@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create ID Form - কালাম পে</title>
+    
+    <script>
+        if (localStorage.getItem("isLoggedIn") !== "true") {
+            window.location.href = "index.html"; 
+        }
+    </script>
+
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #f2f2f2; }
+        .form-card { background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 300px; text-align: center; }
+        h2 { color: #87CEEB; margin-bottom: 20px; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background-color: #87CEEB; color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; transition: 0.3s; font-weight: bold; }
+        button:hover { opacity: 0.9; }
+        button:disabled { background-color: #aaa; }
+        .back-btn { background-color: #f2f2f2; color: #333; margin-top: 10px; }
+        p { font-weight: bold; margin-top: 15px; }
+    </style>
+</head>
+<body>
+
+<div class="form-card">
+    <h2>Create ID</h2>
+    <input type="text" id="userNumber" placeholder="User Number লিখুন">
+    <input type="number" id="pin" placeholder="4-digit PIN লিখুন">
+    <button id="submitBtn" onclick="sendToSheet()">Create ID</button>
+    <button class="back-btn" onclick="window.location.href='dashboard.html'">ফিরে যান</button>
+    <p id="msg"></p>
+</div>
+
+<script>
+function sendToSheet() {
+    const userNumber = document.getElementById('userNumber').value.trim();
+    const pin = document.getElementById('pin').value.trim();
+    const btn = document.getElementById('submitBtn');
+    const msg = document.getElementById('msg');
+
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbza-1VLuOF0djPDBzD0xCdyMuocmyiUlaGKRXcwSAKmOtLUsZPqvfQp7fphFrSuux1v/exec';
+
+    if (!userNumber || !pin) {
+        alert("দয়া করে সব ঘর পূরণ করুন!");
+        return;
+    }
+
+    if (!/^\d{4}$/.test(pin)) {
+        alert("PIN অবশ্যই 4 ডিজিট হতে হবে!");
+        return;
+    }
+
+    btn.disabled = true;
+    btn.innerText = "Saving...";
+    msg.innerText = "আইডি তৈরি করা হচ্ছে...";
+    msg.style.color = "blue";
+
+    fetch(scriptURL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ "userId": userNumber, "pin": pin }) 
+    })
+    .then(() => {
+        msg.innerText = "সফলভাবে সেভ হয়েছে!";
+        msg.style.color = "green";
+        document.getElementById('userNumber').value = "";
+        document.getElementById('pin').value = "";
+        btn.disabled = false;
+        btn.innerText = "Create ID";
+    })
+    .catch(error => {
+        msg.innerText = "ভুল হয়েছে: " + error.message;
+        msg.style.color = "red";
+        btn.disabled = false;
+        btn.innerText = "Create ID";
+    });
+}
+</script>
+
+</body>
+</html>
